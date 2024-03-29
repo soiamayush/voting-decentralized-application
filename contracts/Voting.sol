@@ -8,45 +8,44 @@ contract Voting {
     }
 
     Candidate[] public candidates;
-    address owner;
+    address public owner;
     mapping(address => bool) public voters;
 
     uint256 public votingStart;
     uint256 public votingEnd;
 
-constructor(string[] memory _candidateNames, uint256 _durationInMinutes) {
-    for (uint256 i = 0; i < _candidateNames.length; i++) {
-        candidates.push(Candidate({
-            name: _candidateNames[i],
-            voteCount: 0
-        }));
+    constructor() {
+        owner = msg.sender;
     }
-    owner = msg.sender;
-    votingStart = block.timestamp;
-    votingEnd = block.timestamp + (_durationInMinutes * 1 minutes);
-}
 
-    modifier onlyOwner {
-        require(msg.sender == owner);
+    modifier onlyOwner() {
+        require(
+            msg.sender == owner,
+            "Only contract owner can call this function"
+        );
         _;
     }
 
     function addCandidate(string memory _name) public onlyOwner {
-        candidates.push(Candidate({
-                name: _name,
-                voteCount: 0
-        }));
+        candidates.push(Candidate({name: _name, voteCount: 0}));
     }
 
     function vote(uint256 _candidateIndex) public {
         require(!voters[msg.sender], "You have already voted.");
-        require(_candidateIndex < candidates.length, "Invalid candidate index.");
+        require(
+            _candidateIndex < candidates.length,
+            "Invalid candidate index."
+        );
 
         candidates[_candidateIndex].voteCount++;
         voters[msg.sender] = true;
     }
 
-    function getAllVotesOfCandiates() public view returns (Candidate[] memory){
+    function getAllVotesOfCandidates()
+        public
+        view
+        returns (Candidate[] memory)
+    {
         return candidates;
     }
 
@@ -58,7 +57,25 @@ constructor(string[] memory _candidateNames, uint256 _durationInMinutes) {
         require(block.timestamp >= votingStart, "Voting has not started yet.");
         if (block.timestamp >= votingEnd) {
             return 0;
-    }
+        }
         return votingEnd - block.timestamp;
+    }
+
+    function setVotingStart(uint256 _startTime) public {
+        require(
+            _startTime > block.timestamp,
+            "Start time must be in the future"
+        );
+        votingStart = _startTime;
+    }
+
+    function setVotingEnd(uint256 _endTime) public {
+        require(_endTime > block.timestamp, "End time must be in the future");
+        require(_endTime > votingStart, "End time must be after start time");
+        votingEnd = _endTime;
+    }
+
+    function deleteAllCandidates() public {
+        delete candidates;
     }
 }

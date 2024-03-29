@@ -1,19 +1,8 @@
-const contractAddress = "0x5b0969D0B1A8804c91545167c67019E9ACf97158";
+const contractAddress = "0xeB00E6DbC6c3BF9C1DF46c4FFC7CfeDEa14F0B6e";
 
 const contractAbi = [
   {
-    inputs: [
-      {
-        internalType: "string[]",
-        name: "_candidateNames",
-        type: "string[]",
-      },
-      {
-        internalType: "uint256",
-        name: "_durationInMinutes",
-        type: "uint256",
-      },
-    ],
+    inputs: [],
     stateMutability: "nonpayable",
     type: "constructor",
   },
@@ -56,7 +45,14 @@ const contractAbi = [
   },
   {
     inputs: [],
-    name: "getAllVotesOfCandiates",
+    name: "deleteAllCandidates",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAllVotesOfCandidates",
     outputs: [
       {
         components: [
@@ -103,6 +99,45 @@ const contractAbi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_endTime",
+        type: "uint256",
+      },
+    ],
+    name: "setVotingEnd",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_startTime",
+        type: "uint256",
+      },
+    ],
+    name: "setVotingStart",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

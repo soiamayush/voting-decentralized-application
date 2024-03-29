@@ -5,6 +5,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { Sepolia } from "@thirdweb-dev/chains";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
+import { StateContextProvider } from "./DateTimeContext";
 
 const activeChain = Sepolia;
 
@@ -15,7 +16,9 @@ root.render(
       activeChain={activeChain}
       clientId={process.env.REACT_APP_TEMPLATE_CLIENT_ID}
     >
-      <App />
+      <StateContextProvider>
+        <App />
+      </StateContextProvider>
     </ThirdwebProvider>
   </React.StrictMode>
 );

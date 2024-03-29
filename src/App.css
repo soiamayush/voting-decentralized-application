@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .login-container {
   display: flex;
   flex-direction: column;
@@ -36,7 +40,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #f1f1f1;
+  padding-bottom: 100px;
 }
 
 .connected-header {
@@ -96,4 +100,74 @@ input[type="number"] {
   box-sizing: border-box;
   font-size: 16px;
   margin-bottom: 10px;
+}
+
+/* Dashboard.css */
+.react-datetime-picker {
+  display: inline-block;
+}
+
+.react-datetime-picker__wrapper {
+  position: relative;
+}
+
+.react-datetime-picker__inputGroup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 200px; /* Adjust width as needed */
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.react-datetime-picker__inputGroup__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 5px;
+}
+
+.react-datetime-picker__calendar {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.react-datetime-picker__calendar .react-calendar {
+  width: 200px; /* Adjust width as needed */
+  max-width: 100%;
+}
+
+/* Styling for the calendar navigation buttons */
+.react-calendar__navigation button {
+  background-color: #f8f9fa;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+/* Styling for the calendar days */
+.react-calendar__month-view__days__day {
+  padding: 5px;
+  cursor: pointer;
+}
+
+/* Styling for the selected day */
+.react-calendar__month-view__days__day--active {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Styling for today's date */
+.react-calendar__month-view__days__day--today {
+  font-weight: bold;
+}
+
+/* Styling for disabled days */
+.react-calendar__tile--now {
+  background-color: #f8f9fa;
 }

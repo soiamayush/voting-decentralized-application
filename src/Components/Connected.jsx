@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { ethers } from "ethers";
 import {
   ConnectWallet,
@@ -11,49 +11,67 @@ import {
 import { useStateContext } from "../DateTimeContext";
 import { Link } from "react-router-dom";
 
+const services = [
+  "Infrastructure",
+  "Education",
+  "Employment",
+  "Healthcare",
+  "Student Loan",
+  "Public Services",
+];
+
 const Connected = (props) => {
-  const [amount, setAmount] = useState(50); // Initialize amount state with 50
+  const getPosition = (index) => {
+    switch (index) {
+      case 0:
+        return "First Winner";
+      case 1:
+        return "Second Winner";
+      case 2:
+        return "Third Winner";
+      default:
+        return `${index + 1}th Position`;
+    }
+  };
+
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [selectedService, setSelectedService] = useState("");
+  const [amount, setAmount] = useState(50);
   const address = useAddress();
   const tokenDrop = useTokenDrop("0x055560F27F017ffbe774D594D7A201038A295879");
   const { data: tokenSupply } = useTokenSupply(tokenDrop);
   const { data: tokenBalance } = useTokenBalance(tokenDrop, address);
   const [signer, setSigner] = useState(null);
-  const [claimBtn, setClaimBtn] = useState(props.showButton);
-  const { votingStartTime, votingEndTime } = useStateContext(); // Retrieve voting start and end times from context
+  const { votingStartTime, votingEndTime } = useStateContext();
   const [remainingTime, setRemainingTime] = useState(null);
-  const [claimed, setClaimed] = useState(false); // State to track if tokens are claimed
-  const [winner, setWinner] = useState(null); // State to store the winner
-  const [currentTime, setCurrentTime] = useState(new Date()); // Initialize currentTime with current time
+  const [claimed, setClaimed] = useState(false);
+  const [winner, setWinner] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  const getSigner = async () => {
-    // Connect to the Ethereum provider (e.g., MetaMask)
+  const getSigner = useCallback(async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-    // Ensure that the user is prompted to connect their wallet if not already connected
     await provider.send("eth_requestAccounts", []);
-
-    // Get the signer from the provider
     setSigner(provider.getSigner());
-  };
-  const { mutate: claimTokens, isLoading } = useClaimToken(tokenDrop, signer);
+  }, []);
 
-  // Update amount and address state when props change
+  const { mutate: claimTokens } = useClaimToken(tokenDrop, signer);
+
   useEffect(() => {
-    setAmount(50); // Reset amount to default value
+    setAmount(50);
     getSigner();
-
-    // Check if tokens are claimed from local storage
     const claimedTokens = localStorage.getItem("claimedTokens");
     if (claimedTokens) {
       setClaimed(true);
     }
-
-    // Calculate remaining time if votingEndTime is available
-    if (votingEndTime) {
-      // Voting has ended
+    if (currentTime < votingStartTime) {
+      const timeDifference = votingStartTime - currentTime;
+      const hours = Math.floor((timeDifference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((timeDifference / 1000 / 60) % 60);
+      const seconds = Math.floor((timeDifference / 1000) % 60);
+      setRemainingTime({ hours, minutes, seconds });
+    } else if (votingEndTime && currentTime) {
       if (currentTime > votingEndTime) {
-        setRemainingTime(null); // No need to display remaining time
-        // Calculate and display the winner
+        setRemainingTime(null);
         const maxVotes = Math.max(
           ...props.candidates.map((candidate) => candidate.voteCount)
         );
@@ -62,59 +80,76 @@ const Connected = (props) => {
         );
         setWinner(winningCandidate.name);
       } else {
-        const updateRemainingTime = () => {
-          const endTime = new Date(votingEndTime);
-          const timeDifference = endTime - currentTime;
-
-          // Convert milliseconds to hours, minutes, and seconds
-          const hours = Math.floor((timeDifference / (1000 * 60 * 60)) % 24);
-          const minutes = Math.floor((timeDifference / 1000 / 60) % 60);
-          const seconds = Math.floor((timeDifference / 1000) % 60);
-
-          setRemainingTime({ hours, minutes, seconds });
-        };
-
-        // Update remaining time every second
-        const timer = setInterval(updateRemainingTime, 1000);
-
-        // Call updateRemainingTime once to avoid initial delay
-        updateRemainingTime();
-
-        // Clear interval on component unmount
-        return () => clearInterval(timer);
+        const timeDifference = votingEndTime - currentTime;
+        const hours = Math.floor((timeDifference / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((timeDifference / 1000 / 60) % 60);
+        const seconds = Math.floor((timeDifference / 1000) % 60);
+        setRemainingTime({ hours, minutes, seconds });
+        const timer = setInterval(() => {
+          const updatedTimeDifference = votingEndTime - new Date();
+          if (updatedTimeDifference <= 0) {
+            clearInterval(timer);
+            setRemainingTime(null);
+          } else {
+            const updatedHours = Math.floor(
+              (updatedTimeDifference / (1000 * 60 * 60)) % 24
+            );
+            const updatedMinutes = Math.floor(
+              (updatedTimeDifference / 1000 / 60) % 60
+            );
+            const updatedSeconds = Math.floor(
+              (updatedTimeDifference / 1000) % 60
+            );
+            setRemainingTime({
+              hours: updatedHours,
+              minutes: updatedMinutes,
+              seconds: updatedSeconds,
+            });
+          }
+        }, 1000);
       }
     }
-  }, [props.account, votingEndTime, currentTime]); // Add currentTime to the dependency array
+  }, [
+    props.account,
+    votingStartTime,
+    votingEndTime,
+    currentTime,
+    props.candidates,
+    getSigner,
+  ]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000); // Update currentTime every second
-
-    return () => clearInterval(timer); // Clear interval on component unmount
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  const handleClaimTokens = async () => {
+  // useEffect(() => {
+  const selectRandomCandidate = () => {
+    if (props.candidates.length > 0) {
+      const randomIndex = Math.floor(Math.random() * props.candidates.length);
+      setSelectedCandidate(props.candidates[randomIndex]);
+    }
+  };
+
+  const handleClaimTokens = useCallback(async () => {
     try {
       if (!props.account) {
         throw new Error("Wallet is not connected.");
       }
 
-      // Claim tokens only if not already claimed
-      if (!claimed) {
-        // Claim tokens with the provided amount and recipient address
-        await claimTokens({ amount, to: props.account });
-        setClaimBtn(false);
-
-        // Update local storage to indicate tokens are claimed
-        localStorage.setItem("claimedTokens", true);
-        setClaimed(true);
-      }
+      await claimTokens({ amount, to: address });
+      console.log("s");
     } catch (error) {
       console.error("Error claiming tokens:", error.message);
-      setClaimBtn(false);
     }
-  };
+  }, [props.account, claimTokens, amount, address, tokenBalance]);
+
+  const handleServiceSelection = useCallback((event) => {
+    setSelectedService(event.target.value);
+    selectRandomCandidate();
+  }, []);
 
   return (
     <div className="connected-container">
@@ -131,25 +166,13 @@ const Connected = (props) => {
       )}
       {remainingTime ? (
         <p className="connected-account">
-          Remaining Time: {remainingTime.hours} hours {remainingTime.minutes}{" "}
-          minutes {remainingTime.seconds} seconds
+          {currentTime < votingStartTime
+            ? `Voting will start in: ${remainingTime.hours} hours ${remainingTime.minutes} minutes ${remainingTime.seconds} seconds`
+            : `The Voting is started and will end in: ${remainingTime.hours} hours ${remainingTime.minutes} minutes ${remainingTime.seconds} seconds`}
         </p>
       ) : null}
-      {props.showButton ? (
-        <>
-          {!claimed && (
-            <p className="connected-account">
-              You have already voted, claim your 50 ERC token
-            </p>
-          )}
-          {claimBtn && !claimed && (
-            <button className="login-button" onClick={handleClaimTokens}>
-              Claim {amount} {tokenSupply?.symbol}
-            </button>
-          )}
-        </>
-      ) : (
-        <div>
+      {votingStartTime < currentTime && currentTime < votingEndTime && (
+        <div className="flex gap-x-10">
           <input
             type="number"
             placeholder="Enter Candidate Index"
@@ -159,10 +182,66 @@ const Connected = (props) => {
           <button className="login-button " onClick={props.voteFunction}>
             Vote
           </button>
+          <button className="login-button" onClick={handleClaimTokens}>
+            Claim {amount} {tokenSupply?.symbol}
+          </button>
         </div>
       )}
 
-      {votingStartTime && votingEndTime && props.candidates.length > 0 && (
+      {votingStartTime && currentTime && props.candidates.length > 0 && (
+        <form className="">
+          <div className="flex flex-col gap-y-6 justify-center items-center">
+            <p>Choose the service you want from your candidate:</p>
+            {services.map((service) => (
+              <label key={service}>
+                <input
+                  type="radio"
+                  value={service}
+                  checked={selectedService === service}
+                  onChange={handleServiceSelection}
+                />
+                {service}
+              </label>
+            ))}
+          </div>
+        </form>
+      )}
+      {selectedService && selectedCandidate && (
+        <p className="font-bold my-6 text-2xl text-center">
+          Selected Service: {selectedService}
+          <br />
+          Candidate Suggested for {selectedService}: {selectedCandidate.name}
+        </p>
+      )}
+
+      {currentTime > votingEndTime && props.candidates.length > 0 ? (
+        <div className="w-full m-auto flex justify-center items-center flex-col ">
+          <h2 className="connected-account flex justify-center my-6 font-bold">
+            Voters Book:
+          </h2>
+          <table id="myTable" className="candidates-table mt-6 ">
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th>Candidate name</th>
+                <th>Candidate votes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {props.candidates
+                .slice()
+                .sort((a, b) => b.voteCount - a.voteCount)
+                .map((candidate, index) => (
+                  <tr key={index}>
+                    <td>{getPosition(index)}</td>
+                    <td>{candidate.name}</td>
+                    <td>{candidate.voteCount}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
         <table id="myTable" className="candidates-table mt-6">
           <thead>
             <tr>
@@ -182,16 +261,10 @@ const Connected = (props) => {
           </tbody>
         </table>
       )}
-      {!votingStartTime && (
-        <p className="connected-account">
-          Voting is scheduled to start at{" "}
-          {new Date(votingStartTime).toLocaleString()}.
-        </p>
-      )}
       {currentTime > votingEndTime && (
-        <p className="connected-account">
+        <h1 className="connected-account font-bold my-8">
           Voting has ended. The winner is {winner}.
-        </p>
+        </h1>
       )}
     </div>
   );

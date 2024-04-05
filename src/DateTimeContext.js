@@ -14,7 +14,7 @@ export const StateContextProvider = ({ children }) => {
       try {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
-        const contractAddress = "0xeB00E6DbC6c3BF9C1DF46c4FFC7CfeDEa14F0B6e"; // Replace with your contract address
+        const contractAddress = "0xfB08270ABA3C7e5cffB915E1e497B31DE96a81c3"; // Replace with your contract address
         const Abi = contractAbi; // Replace with your contract ABI
         const contract = new ethers.Contract(contractAddress, Abi, signer);
         setContractInstance(contract);
@@ -29,6 +29,7 @@ export const StateContextProvider = ({ children }) => {
     }
 
     initializeContract();
+    console.log("called");
   }, []);
 
   const setVotingStartTimeInContract = async (sTime) => {
@@ -49,6 +50,7 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
+  console.log(votingStartTime, "for ayush");
   return (
     <StateContext.Provider
       value={{

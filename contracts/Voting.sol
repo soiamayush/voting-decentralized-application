@@ -9,7 +9,7 @@ contract Voting {
 
     Candidate[] public candidates;
     address public owner;
-    mapping(address => bool) public voters;
+    mapping(address => bool) public voters; // Mapping to keep track of whether an address has voted or not
 
     uint256 public votingStart;
     uint256 public votingEnd;
@@ -26,19 +26,19 @@ contract Voting {
         _;
     }
 
-    function addCandidate(string memory _name) public onlyOwner {
+    function addCandidate(string memory _name) public {
         candidates.push(Candidate({name: _name, voteCount: 0}));
     }
 
     function vote(uint256 _candidateIndex) public {
-        require(!voters[msg.sender], "You have already voted.");
+        // require(!voters[msg.sender], "You have already voted."); // Check if the user has already voted
         require(
             _candidateIndex < candidates.length,
             "Invalid candidate index."
         );
 
         candidates[_candidateIndex].voteCount++;
-        voters[msg.sender] = true;
+        voters[msg.sender] = true; // Mark the user as voted
     }
 
     function getAllVotesOfCandidates()

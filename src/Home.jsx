@@ -70,18 +70,23 @@ function Home() {
   }
 
   async function vote() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const contractInstance = new ethers.Contract(
-      contractAddress,
-      contractAbi,
-      signer
-    );
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const contractInstance = new ethers.Contract(
+        contractAddress,
+        contractAbi,
+        signer
+      );
 
-    const tx = await contractInstance.vote(number);
-    await tx.wait();
-    canVote();
+      // Proceed with the voting transaction if the user has not already voted
+      const tx = await contractInstance.vote(number);
+      await tx.wait();
+      // canVote();
+    } catch (error) {
+      alert("Already Voted, A user can only vote once");
+    }
   }
 
   async function canVote() {

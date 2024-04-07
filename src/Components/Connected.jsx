@@ -301,7 +301,7 @@ const Connected = (props) => {
             Voters Book:
           </h2>
 
-          <div className="flex items-center justify-center">
+          {/* <div className="flex items-center justify-center">
             <table id="myTable" className="candidates-table mt-6 ">
               <thead>
                 <tr>
@@ -318,7 +318,7 @@ const Connected = (props) => {
                 ))}
               </tbody>
             </table>
-          </div>
+          </div> */}
 
           <div className="mx-20"></div>
           <table id="myTable" className="candidates-table mt-6 ">

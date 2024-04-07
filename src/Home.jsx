@@ -36,7 +36,7 @@ function Home() {
     getRemainingTime();
     getCurrentStatus();
     fetchVotingTimes();
-    getVotersPerCandidate();
+    // getVotersPerCandidate();
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", handleAccountsChanged);
     }
@@ -104,46 +104,46 @@ function Home() {
     setCanVote(voteStatus);
   }
 
-  async function getVotersPerCandidate() {
-    try {
-      // Connect to Ethereum provider
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+  // async function getVotersPerCandidate() {
+  //   try {
+  //     // Connect to Ethereum provider
+  //     const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-      // Request access to user's accounts
-      await provider.send("eth_requestAccounts", []);
+  //     // Request access to user's accounts
+  //     await provider.send("eth_requestAccounts", []);
 
-      // Get the signer
-      const signer = provider.getSigner();
+  //     // Get the signer
+  //     const signer = provider.getSigner();
 
-      // Load the contract instance
-      const contractInstance = new ethers.Contract(
-        contractAddress,
-        [
-          "function getVotersAddress() view returns (tuple(uint256 name, address votersAddress)[])",
-        ],
-        signer
-      );
+  //     // Load the contract instance
+  //     const contractInstance = new ethers.Contract(
+  //       contractAddress,
+  //       [
+  //         "function getVotersAddress() view returns (tuple(uint256 name, address votersAddress)[])",
+  //       ],
+  //       signer
+  //     );
 
-      // Fetch the list of candidates with their voters
-      const candidateVotersList = await contractInstance.getVotersAddress();
+  //     // Fetch the list of candidates with their voters
+  //     const candidateVotersList = await contractInstance.getVotersAddress();
 
-      // Format candidate voters data
-      const formattedCandidateVoters = candidateVotersList.map(
-        (candidateVoter) => {
-          return {
-            candidateIndex: candidateVoter.name,
-            voterAddress: candidateVoter.votersAddress,
-          };
-        }
-      );
+  //     // Format candidate voters data
+  //     const formattedCandidateVoters = candidateVotersList.map(
+  //       (candidateVoter) => {
+  //         return {
+  //           candidateIndex: candidateVoter.name,
+  //           voterAddress: candidateVoter.votersAddress,
+  //         };
+  //       }
+  //     );
 
-      // Set the candidate voters state
-      setCandidateVoters(formattedCandidateVoters);
-      console.log(candidateVoters);
-    } catch (error) {
-      console.error("Error fetching candidate voters:", error);
-    }
-  }
+  //     // Set the candidate voters state
+  //     setCandidateVoters(formattedCandidateVoters);
+  //     console.log(candidateVoters);
+  //   } catch (error) {
+  //     console.error("Error fetching candidate voters:", error);
+  //   }
+  // }
 
   async function getCandidates() {
     try {
@@ -263,7 +263,7 @@ function Home() {
           handleNumberChange={handleNumberChange}
           voteFunction={vote}
           showButton={CanVote}
-          candidateVoters={candidateVoters}
+          // candidateVoters={candidateVoters}
         />
       ) : (
         <div className="login-container">

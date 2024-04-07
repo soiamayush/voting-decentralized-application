@@ -267,10 +267,6 @@ function Home() {
         />
       ) : (
         <div className="login-container">
-          <h1 className="welcome-message">
-            Welcome to decentralized voting application
-          </h1>
-
           {/* <ConnectWallet className="login-button" onConnect={connectToMetamask}> */}
           <Login connectWallet={connectToMetamask} />
           {/* </ConnectWallet> */}

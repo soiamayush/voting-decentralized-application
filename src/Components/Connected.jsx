@@ -364,7 +364,7 @@ const Connected = (props) => {
           </tbody>
         </table>
       )}
-      {currentTime > votingEndTime && (
+      {winner && currentTime > votingEndTime && (
         <h1 className="connected-account font-bold my-8">
           Voting has ended. The winner is {winner}.
         </h1>

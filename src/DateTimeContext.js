@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import { ethers } from "ethers";
-import { contractAbi } from "./Constant/constant";
+import { contractAbi, contractAddress } from "./Constant/constant";
 
 const StateContext = createContext();
 
@@ -14,7 +14,7 @@ export const StateContextProvider = ({ children }) => {
       try {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
-        const contractAddress = "0xB9Da42eE02826a403034c80383220A67ba7dc39B"; // Replace with your contract address
+        const contractAddress = "0xABaf674777f09D92D80bBf412340EFaA40a1381A"; // Replace with your contract address
         const Abi = contractAbi; // Replace with your contract ABI
         const contract = new ethers.Contract(contractAddress, Abi, signer);
         setContractInstance(contract);

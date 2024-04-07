@@ -14,7 +14,7 @@ export const StateContextProvider = ({ children }) => {
       try {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
-        const contractAddress = "0x2d64ED17bC0eFaCE71fAA268B1afAaA6cd5825f5"; // Replace with your contract address
+        const contractAddress = "0xB9Da42eE02826a403034c80383220A67ba7dc39B"; // Replace with your contract address
         const Abi = contractAbi; // Replace with your contract ABI
         const contract = new ethers.Contract(contractAddress, Abi, signer);
         setContractInstance(contract);

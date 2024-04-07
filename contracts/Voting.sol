@@ -97,5 +97,6 @@ contract Voting {
 
     function deleteAllCandidates() public {
         delete candidates;
+        delete CandidateAddressArr;
     }
 }

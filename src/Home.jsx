@@ -29,12 +29,14 @@ function Home() {
 
   const [startTime, setStartTime] = useState(null); // State variable to store start time
   const [endTime, setEndTime] = useState(null);
+  const [candidateVoters, setCandidateVoters] = useState([]);
 
   useEffect(() => {
     getCandidates();
     getRemainingTime();
     getCurrentStatus();
     fetchVotingTimes();
+    getVotersPerCandidate();
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", handleAccountsChanged);
     }
@@ -83,9 +85,9 @@ function Home() {
       // Proceed with the voting transaction if the user has not already voted
       const tx = await contractInstance.vote(number);
       await tx.wait();
-      // canVote();
     } catch (error) {
       alert("Already Voted, A user can only vote once");
+      console.error(error);
     }
   }
 
@@ -100,6 +102,47 @@ function Home() {
     );
     const voteStatus = await contractInstance.voters(await signer.getAddress());
     setCanVote(voteStatus);
+  }
+
+  async function getVotersPerCandidate() {
+    try {
+      // Connect to Ethereum provider
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      // Request access to user's accounts
+      await provider.send("eth_requestAccounts", []);
+
+      // Get the signer
+      const signer = provider.getSigner();
+
+      // Load the contract instance
+      const contractInstance = new ethers.Contract(
+        contractAddress,
+        [
+          "function getVotersAddress() view returns (tuple(uint256 name, address votersAddress)[])",
+        ],
+        signer
+      );
+
+      // Fetch the list of candidates with their voters
+      const candidateVotersList = await contractInstance.getVotersAddress();
+
+      // Format candidate voters data
+      const formattedCandidateVoters = candidateVotersList.map(
+        (candidateVoter) => {
+          return {
+            candidateIndex: candidateVoter.name,
+            voterAddress: candidateVoter.votersAddress,
+          };
+        }
+      );
+
+      // Set the candidate voters state
+      setCandidateVoters(formattedCandidateVoters);
+      console.log(candidateVoters);
+    } catch (error) {
+      console.error("Error fetching candidate voters:", error);
+    }
   }
 
   async function getCandidates() {
@@ -220,6 +263,7 @@ function Home() {
           handleNumberChange={handleNumberChange}
           voteFunction={vote}
           showButton={CanVote}
+          candidateVoters={candidateVoters}
         />
       ) : (
         <div className="login-container">
@@ -227,9 +271,9 @@ function Home() {
             Welcome to decentralized voting application
           </h1>
 
-          <ConnectWallet className="login-button" onConnect={connectToMetamask}>
-            <Login connectWallet={connectToMetamask} />
-          </ConnectWallet>
+          {/* <ConnectWallet className="login-button" onConnect={connectToMetamask}> */}
+          <Login connectWallet={connectToMetamask} />
+          {/* </ConnectWallet> */}
         </div>
       )}
     </div>

@@ -10,6 +10,7 @@ import {
 } from "@thirdweb-dev/react";
 import { useStateContext } from "../DateTimeContext";
 import { Link } from "react-router-dom";
+import { contractAbi, contractAddress } from "../Constant/constant";
 
 const services = [
   "Infrastructure",
@@ -146,10 +147,35 @@ const Connected = (props) => {
     }
   }, [props.account, claimTokens, amount, address, tokenBalance]);
 
+  const [response1, setResponse1] = useState(""); // State variable for the first question
+  const [response2, setResponse2] = useState(""); // State variable for the second question
+  const [response3, setResponse3] = useState("");
+
   const handleServiceSelection = useCallback((event) => {
     setSelectedService(event.target.value);
-    selectRandomCandidate();
   }, []);
+
+  const handleResponse1Change = (event) => {
+    setResponse1(event.target.value);
+  };
+
+  const handleResponse2Change = (event) => {
+    setResponse2(event.target.value);
+  };
+
+  const handleResponse3Change = (event) => {
+    setResponse3(event.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Save responses
+    console.log("Response 1:", response1);
+    console.log("Response 2:", response2);
+    console.log("Response 3:", response3);
+    // Add your logic here to save the responses
+    selectRandomCandidate();
+  };
 
   return (
     <div className="connected-container">
@@ -161,9 +187,7 @@ const Connected = (props) => {
           Visit Admin Dashboard
         </Link>
       ) : null}
-      {claimed && (
-        <p className="connected-account">You've already claimed your tokens.</p>
-      )}
+      {/* // <p className="connected-account">You've already claimed your tokens.</p> */}
       {remainingTime ? (
         <p className="connected-account">
           {currentTime < votingStartTime
@@ -179,7 +203,7 @@ const Connected = (props) => {
             value={props.number}
             onChange={props.handleNumberChange}
           />
-          <button className="login-button " onClick={props.voteFunction}>
+          <button className="login-button" onClick={props.voteFunction}>
             Vote
           </button>
           <button className="login-button" onClick={handleClaimTokens}>
@@ -189,28 +213,85 @@ const Connected = (props) => {
       )}
 
       {votingStartTime && currentTime && props.candidates.length > 0 && (
-        <form className="">
+        <form className="flex items-center justify-center flex-col">
           <div className="flex flex-col gap-y-6 justify-center items-center">
-            <p>Choose the service you want from your candidate:</p>
-            {services.map((service) => (
-              <label key={service}>
-                <input
-                  type="radio"
-                  value={service}
-                  checked={selectedService === service}
-                  onChange={handleServiceSelection}
-                />
-                {service}
-              </label>
-            ))}
+            {/* Existing JSX code... */}
+
+            {/* New question 1 */}
+            <select
+              value={response1}
+              onChange={handleResponse1Change}
+              className="border p-2"
+            >
+              <option value="">Select Candidate Qualifications</option>
+              <option value="Extensive experience in relevant field">
+                Extensive experience in relevant field
+              </option>
+              <option value="Strong leadership skills">
+                Strong leadership skills
+              </option>
+              <option value="Track record of community involvement">
+                Track record of community involvement
+              </option>
+              <option value="Vision for the future">
+                Vision for the future
+              </option>
+            </select>
+
+            {/* New question 2 */}
+            <select
+              value={response2}
+              onChange={handleResponse2Change}
+              className="border p-2"
+            >
+              <option value="">Select Policy Alignment</option>
+              <option value="Supports policies that align with my values and beliefs">
+                Supports policies that align with my values and beliefs
+              </option>
+              <option value="Demonstrates understanding of key issues facing the community">
+                Demonstrates understanding of key issues facing the community
+              </option>
+              <option value="Offers practical solutions to address those issues">
+                Offers practical solutions to address those issues
+              </option>
+              <option value="Open to collaboration and compromise">
+                Open to collaboration and compromise
+              </option>
+            </select>
+
+            {/* New question 3 */}
+            <select
+              value={response3}
+              onChange={handleResponse3Change}
+              className="border p-2"
+            >
+              <option value="">Select Trustworthiness and Integrity</option>
+              <option value="Demonstrates honesty and transparency in actions and statements">
+                Demonstrates honesty and transparency in actions and statements
+              </option>
+              <option value="Has a history of keeping promises and commitments">
+                Has a history of keeping promises and commitments
+              </option>
+              <option value="Respects diverse perspectives and values inclusivity">
+                Respects diverse perspectives and values inclusivity
+              </option>
+              <option value="Prioritizes the well-being of constituents over personal interests">
+                Prioritizes the well-being of constituents over personal
+                interests
+              </option>
+            </select>
           </div>
+          <button
+            onClick={handleSubmit}
+            className="font-bold p-4 bg-blue-500 text-white border rounded-xl hover:bg-blue-700 m-auto w-auto "
+          >
+            Submit
+          </button>
         </form>
       )}
-      {selectedService && selectedCandidate && (
+      {selectedCandidate && response1 && response2 && response3 && (
         <p className="font-bold my-6 text-2xl text-center">
-          Selected Service: {selectedService}
-          <br />
-          Candidate Suggested for {selectedService}: {selectedCandidate.name}
+          Candidate Suggested : {selectedCandidate.name}
         </p>
       )}
 
@@ -219,7 +300,29 @@ const Connected = (props) => {
           <h2 className="connected-account flex justify-center my-6 font-bold">
             Voters Book:
           </h2>
+
+          <div className="flex items-center justify-center">
+            <table id="myTable" className="candidates-table mt-6 ">
+              <thead>
+                <tr>
+                  <th>Index</th>
+                  <th>Voter Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                {props.candidateVoters?.map((voter, index) => (
+                  <tr key={index}>
+                    <td>{voter?.candidateIndex.toString()}</td>
+                    <td>{voter?.voterAddress}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mx-20"></div>
           <table id="myTable" className="candidates-table mt-6 ">
+            <h1>Winners table</h1>
             <thead>
               <tr>
                 <th>Position</th>

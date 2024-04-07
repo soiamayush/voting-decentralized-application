@@ -7,9 +7,17 @@ contract Voting {
         uint256 voteCount;
     }
 
+    struct CandidateAddress {
+        uint256 name;
+        address votersAddress;
+    }
+
+    CandidateAddress[] public CandidateAddressArr;
     Candidate[] public candidates;
     address public owner;
     mapping(address => bool) public voters; // Mapping to keep track of whether an address has voted or not
+
+    mapping(uint256 => address[]) public votedCandidates; // Mapping to store voters for each candidate index
 
     uint256 public votingStart;
     uint256 public votingEnd;
@@ -31,14 +39,18 @@ contract Voting {
     }
 
     function vote(uint256 _candidateIndex) public {
-        // require(!voters[msg.sender], "You have already voted."); // Check if the user has already voted
+        // require(!voters[msg.sender], "You have already voted.");
         require(
             _candidateIndex < candidates.length,
             "Invalid candidate index."
         );
 
         candidates[_candidateIndex].voteCount++;
-        voters[msg.sender] = true; // Mark the user as voted
+        voters[msg.sender] = true;
+
+        CandidateAddressArr.push(
+            CandidateAddress({name: _candidateIndex, votersAddress: msg.sender})
+        );
     }
 
     function getAllVotesOfCandidates()
@@ -47,6 +59,14 @@ contract Voting {
         returns (Candidate[] memory)
     {
         return candidates;
+    }
+
+    function getVotersAddress()
+        public
+        view
+        returns (CandidateAddress[] memory)
+    {
+        return CandidateAddressArr;
     }
 
     function getVotingStatus() public view returns (bool) {

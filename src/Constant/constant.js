@@ -1,4 +1,4 @@
-const contractAddress = "0xfB08270ABA3C7e5cffB915E1e497B31DE96a81c3";
+const contractAddress = "0x2d64ED17bC0eFaCE71fAA268B1afAaA6cd5825f5";
 
 const contractAbi = [
   {
@@ -151,6 +151,30 @@ const contractAbi = [
     name: "vote",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "votedCandidates",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {

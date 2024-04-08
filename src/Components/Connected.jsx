@@ -322,7 +322,6 @@ const Connected = (props) => {
 
           <div className="mx-20"></div>
           <table id="myTable" className="candidates-table mt-6 ">
-            <h1>Winners table</h1>
             <thead>
               <tr>
                 <th>Position</th>
